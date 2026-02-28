@@ -4,7 +4,7 @@
 // If something goes wrong during execution, it logs the error and replies to the user with a hidden ("ephemeral") 
 
 
-const { Events, MessageFlags } = require('discord.js');
+const { Events, MessageFlags, Collection } = require('discord.js');
 
 module.exports = {
 	name: Events.InteractionCreate,

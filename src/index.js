@@ -11,6 +11,7 @@ const token = process.env.BOT_TOKEN;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
+client.cooldowns = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -19,13 +20,17 @@ for (const folder of commandFolders) {
 	const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js')); //only check javascript files
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
-		const command = require(filePath);
+		try {
+			const command = require(filePath);
 
-		if ('data' in command && 'execute' in command) { // if command includes data and exectute then add it to commands. 
-			client.commands.set(command.data.name, command);
-            console.log("Command added")
-		} else {
-			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+			if ('data' in command && 'execute' in command) { // if command includes data and exectute then add it to commands. 
+				client.commands.set(command.data.name, command);
+				console.log('Command added:', command.data.name);
+			} else {
+				console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+			}
+		} catch (error) {
+			console.log(`[WARNING] Failed to load command at ${filePath}: ${error.message}`);
 		}
 	}
 }
@@ -42,7 +47,4 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
-console.log("BOT_TOKEN =", process.env.BOT_TOKEN);
-console.log("Type =", typeof process.env.BOT_TOKEN);
-
 client.login(token);

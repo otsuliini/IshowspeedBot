@@ -8,7 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const commands = [];
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, 'src', 'commands');
 
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -19,12 +19,16 @@ for (const folder of commandFolders) {
 	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
-		const command = require(filePath);
-		if ('data' in command && 'execute' in command) {
-			commands.push(command);
-		} else {
-			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-		}
+        try {
+            const command = require(filePath);
+            if ('data' in command && 'execute' in command) {
+                commands.push(command);
+            } else {
+                console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+            }
+        } catch (error) {
+            console.log(`[WARNING] Failed to load command at ${filePath}: ${error.message}`);
+        }
 	}
 }
 

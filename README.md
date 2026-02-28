@@ -10,7 +10,15 @@ A discord bot for ishowspeed fans
 ## Commands: 
 - /bark
 >Ishowspeed joins voice call and barks
-- /video
->Get's a cool video of ishowspeed
+- /ping
+>Replies with Pong!
+- /reload
+>Reloads a command (guild only)
+
+## Setup
+1. Add your bot token to `.env` as `BOT_TOKEN=...`
+2. Install dependencies: `npm install`
+3. Register slash commands: `npm run deploy`
+4. Start bot: `npm start`
 
 
