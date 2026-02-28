@@ -1,12 +1,12 @@
-//It creates a new Discord client with the necessary intents, 
-//then loads all command files from the commands folder.
+//loads command files from commands folder
 // checks for execute and data
-// and adds it to the bot’s commands. Finally, it logs the bot in using the token from `config.json`, 
-
+// and adds it to the bot’s commands
+require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const { token } = require(process.env.BOT_TOKEN);
+const token = process.env.BOT_TOKEN;
+
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -23,6 +23,7 @@ for (const folder of commandFolders) {
 
 		if ('data' in command && 'execute' in command) { // if command includes data and exectute then add it to commands. 
 			client.commands.set(command.data.name, command);
+            console.log("Command added")
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
@@ -41,5 +42,7 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+console.log("BOT_TOKEN =", process.env.BOT_TOKEN);
+console.log("Type =", typeof process.env.BOT_TOKEN);
 
 client.login(token);

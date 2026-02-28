@@ -1,11 +1,14 @@
 //adds commmands to discord so that when user types / it'll show the possible commandds
 
 const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require(process.env.BOT_TOKEN);
+require('dotenv').config();
+const { clientId, guildId } = require('./config.json');
+const token = process.env.BOT_TOKEN;
 const fs = require('node:fs');
 const path = require('node:path');
 
 const commands = [];
+const foldersPath = path.join(__dirname, 'commands');
 
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -18,7 +21,7 @@ for (const folder of commandFolders) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
-			commands.push(command.data.toJSON());
+			commands.push(command);
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
@@ -48,8 +51,8 @@ const rest = new REST().setToken(token);
 
         //deploy commands
         if (guildCommands.length > 0){
-            await rest.put(Routes.applicationGuildCommands(clientId, guildId)),
-            { body: guildCommands}
+            await rest.put(Routes.applicationGuildCommands(clientId, guildId),
+            { body: guildCommands});
         }
 
         if (globalCommands.length > 0){
@@ -59,7 +62,7 @@ const rest = new REST().setToken(token);
             )
         }
 		
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+		console.log(`Successfully reloaded ${commands.length} application (/) commands.`);
 	} catch (error) {
 		
 		console.error(error);
