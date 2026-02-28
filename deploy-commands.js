@@ -1,3 +1,5 @@
+//adds commmands to discord so that when user types / it'll show the possible commandds
+
 const { REST, Routes } = require('discord.js');
 const { clientId, guildId, token } = require(process.env.BOT_TOKEN);
 const fs = require('node:fs');
@@ -35,7 +37,7 @@ const rest = new REST().setToken(token);
 		const data = await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
         //To deploy global commands:
         //await rest.put(Routes.applicationCommands(clientId), { body: commands });
-        
+
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
 	} catch (error) {
 		
