@@ -1,5 +1,14 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const {
+    joinVoiceChannel,
+    createAudioPlayer,
+    createAudioResource,
+    AudioPlayerStatus,
+    VoiceConnectionStatus,
+    entersState,
+    demuxProbe,
+} = require('@discordjs/voice');
+const fs = require('node:fs');
 const path = require('path');
 
 module.exports = {
@@ -14,6 +23,13 @@ module.exports = {
 
         await interaction.reply('Barking now...');
 
+        try {
+            if (!process.env.FFMPEG_PATH) {
+                process.env.FFMPEG_PATH = require('ffmpeg-static');
+            }
+        } catch {
+        }
+
         const connection = joinVoiceChannel({
             channelId: voiceChannel.id,
             guildId: interaction.guild.id,
@@ -21,17 +37,32 @@ module.exports = {
         });
         
         const audioPlayer = createAudioPlayer();
+        const audioPath = path.join(__dirname, '../../../assets/bark-bark-ishowspeed.mp3');
 
-        const sound = createAudioResource(path.join(__dirname, '../../../assets/bark-bark-ishowspeed.mp3'));
+        try {
+            if (!fs.existsSync(audioPath)) {
+                throw new Error('Audio file not found.');
+            }
 
-     
+            await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
 
-        audioPlayer.play(sound);
-        const subscription = connection.subscribe(audioPlayer);
+            const stream = fs.createReadStream(audioPath);
+            const { stream: probedStream, type } = await demuxProbe(stream);
+            const sound = createAudioResource(probedStream, { inputType: type });
 
-        if (subscription) {
-            setTimeout(() => subscription.unsubscribe(), 5_000);
+            connection.subscribe(audioPlayer);
+            audioPlayer.play(sound);
+        } catch (error) {
+            connection.destroy();
+            return interaction.followUp({
+                content: `Could not play bark audio: ${error.message}`,
+                ephemeral: true,
+            });
         }
+
+        audioPlayer.on('error', () => {
+            connection.destroy();
+        });
 
         audioPlayer.on(AudioPlayerStatus.Idle, () => {
             connection.destroy();
