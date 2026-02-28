@@ -8,11 +8,9 @@ A discord bot for ishowspeed fans
 - When asked it'll give the latest news on ishowspeed 
 
 ## Commands: 
-- /News
-> Will get the latest news on ishowspeed by scraping the web
-- /Subscribers
-> Gets the live subscriber count of Ishowpeed
 - /bark
 >Ishowspeed joins voice call and barks
+- /video
+>Get's a cool video of ishowspeed
 
 
